@@ -1,25 +1,86 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import BioAndSSN from './Steps/BioAndSSN';
+import ContactInformation from './Steps/ContactInformation';
+import HorizontalLabelPositionBelowStepper from './HorizontalLabelPositionBelowStepper';
+import Paper from '@material-ui/core/Paper';
+import ProfessionalInformation from './Steps/ProfessionalInformation';
+import Typography from '@material-ui/core/Typography';
+import { StateProvider, StateContext } from './state';
 
-function App() {
+const App = () => {
+  
+  const initialState = {
+    step: 0,
+    employee: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      address: '',
+      gender: ''
+    },
+    proInfo: {
+      trade: '',
+      skill: ''
+    },
+    bioAndSSN: {
+      bio: '',
+      ssn: ''
+    }
+  };
+  
+  const reducer = (state, action) => {
+    switch (action.type) {
+      case 'changeStep':
+      return {
+        ...state,
+        step: action.step
+      }
+      case 'changeEmployee':
+      return {
+        ...state,
+        employee: action.updateEmployeeField
+      };
+      case 'changeProInfo':
+        return {
+          ...state,
+          proInfo: action.updateProInfoField
+        }
+      case 'changeBioAndSSNInfo':
+          return {
+            ...state,
+            bioAndSSN: action.updateBioAndSSNField
+          }
+      default:
+        return state;
+    }
+  };
+
+  const steps = [
+                  <ContactInformation />, 
+                  <ProfessionalInformation />,
+                  <BioAndSSN />
+                ];
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <StateProvider initialState={initialState} reducer={reducer}>
+      <>
+        <Typography variant="h5" component="h1">
+          New Employee
+        </Typography>
+        <Typography variant="subtitle1" component="h2">
+          Please complete the form below and fill out all the necessary information.
+        </Typography>
+        <HorizontalLabelPositionBelowStepper />
+        <Paper>
+          <StateContext.Consumer>
+            {value => {
+              const { step } = value[0];
+              return steps[step]
+            }}
+          </StateContext.Consumer>
+        </Paper>
+      </>
+    </StateProvider>
   );
 }
 
